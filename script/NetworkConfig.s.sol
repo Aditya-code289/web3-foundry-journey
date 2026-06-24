@@ -7,7 +7,7 @@ import {Script} from "forge-std/Script.sol";
 
 contract network_config{
 
-    address public final_addr;
+    chain_config public final_addr;
 
     constructor(){
         if(block.chainid == 11155111){
@@ -22,8 +22,8 @@ contract network_config{
         address chain_address;
     }
 
-    function ret_sep_addr() public view returns(chain_config memory){
-        chain_config memory addr_feed = chain_config{chain_address: 0x694AA1769357215DE4FAC081bf1f309aDC325306}();
+    function ret_sep_addr() public pure returns(chain_config memory){
+        chain_config memory addr_feed = chain_config({chain_address: 0x694AA1769357215DE4FAC081bf1f309aDC325306});
         return addr_feed;
 
     }

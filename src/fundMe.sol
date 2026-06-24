@@ -1,7 +1,6 @@
-// SPDX-License-Identifier: MIT;
-//writing whole contract from scratch by myself 
-
+// SPDX License-Identifier: MIT;
 pragma solidity ^0.8.19;
+
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 error Not_Enough_Amt();
@@ -13,17 +12,14 @@ contract fundMe{
     uint public constant min_usd = 5e18;
     address public immutable chain_addr; // ALways use constant, immutable to optimize gas 
     uint public count = 0;
-    address immutable owner;
+    address immutable public owner;
 
-    mapping(address=>uint) addressToAmt;
+    mapping(address=>uint) public addressToAmt;
     mapping(uint=>uint) indexToAmt;
-
-    address public owner;
-
 
     constructor(address input_addr){
         chain_addr = input_addr;
-        
+        owner = msg.sender;
     }
 
     modifier OnlyOwner{
@@ -37,11 +33,10 @@ contract fundMe{
 
         AggregatorV3Interface priceFeed = AggregatorV3Interface(chain_addr);
         (,int eth_price , , ,) =priceFeed.latestRoundData();
-        return uint(price);
-
+        return uint(eth_price);
     }
 
-    function conversion(eth_amt) public returns(uint256){
+    function conversion(uint eth_amt) public returns(uint256){
         uint256 usd_amt = (eth_amt*fetch_price());
         usd_amt = usd_amt/1e18;
         return usd_amt;
@@ -54,12 +49,12 @@ contract fundMe{
             revert Not_Enough_Amt();
         }
         count ++;
-        addressToAmt(msg.sender) = msg.value;
-        indexToAmt(count) = msg.value;
+        addressToAmt[msg.sender] = msg.value;
+        indexToAmt[count] = msg.value;
 
     }
 
-    function withdraw() public payable onlyOwner {
+    function withdraw() public payable OnlyOwner {
             // using call method 
 
         (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");  // writing uint amt_ is WRONG!!!
