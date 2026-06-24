@@ -1,65 +1,81 @@
-//SPDX License-Convertor:MIT;
-pragma solidity ^0.8.19;
+// SPDX-License-Identifier: MIT;
+//writing whole contract from scratch by myself 
 
+pragma solidity ^0.8.19;
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
-error NotOwner();  // now this can be replaced using if at require place
-error Withdraw_failed();
-error Insuff_amount();
+error Not_Enough_Amt();
+error not_owner();
+error withdraw_failed();
 
 contract fundMe{
 
-    address[] public Sender_contract; 
-    address public immutable owner;                          // changing to immutable
-    uint  public constant min_usd = 1e18;   // 1 USD = 0.005 ETH              // changing to constant
+    uint public constant min_usd = 5e18;
+    address public immutable chain_addr; // ALways use constant, immutable to optimize gas 
+    uint public count = 0;
+    address immutable owner;
 
-    function fetch_price() public view returns(uint) {
-        //Adderess: 0x694AA1769357215DE4FAC081bf1f309aDC325306
-        //ABI
-        AggregatorV3Interface priceFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);
-        (, int price,,,) = priceFeed.latestRoundData();
+    mapping(address=>uint) addressToAmt;
+    mapping(uint=>uint) indexToAmt;
 
-        return uint(price*1e10);
+    address public owner;
+
+
+    constructor(address input_addr){
+        chain_addr = input_addr;
+        
     }
 
-    function conversion(uint eth_amt) public view returns(uint){
-        uint result = (eth_amt * fetch_price())/1e18;
-        return result;
-    }
-
-    function get_fund() public payable{
-        // require(conversion(msg.value) >= min_usd, "Not enough emount");
-        if(conversion(msg.value) < min_usd){
-            revert Insuff_amount();
-        }
-
-        Sender_contract.push(msg.sender);
-    }
-
-    constructor(){ 
-        owner = msg.sender;
-    }
-
-    modifier onlyOwner{
-        // require(msg.sender == owner, "Not Owner");
+    modifier OnlyOwner{
         if(msg.sender != owner){
-            revert NotOwner();
+            revert not_owner();
         }
         _;
     }
 
-    function withdraw() public payable onlyOwner{
+    function fetch_price() public returns(uint256){
 
-        // Transfer
-        // payable(msg.sender).transfer(address(this).balance);
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(chain_addr);
+        (,int eth_price , , ,) =priceFeed.latestRoundData();
+        return uint(price);
 
-        // call
-        (bool success,) =payable(msg.sender).call{value: address(this).balance}("");
-        // require(success, "failed");
-        if(success!= true){
-            revert Withdraw_failed();
-        }
     }
 
-}
+    function conversion(eth_amt) public returns(uint256){
+        uint256 usd_amt = (eth_amt*fetch_price());
+        usd_amt = usd_amt/1e18;
+        return usd_amt;
 
+    }
+
+    function get_fund() public payable {
+
+        if(conversion(msg.value) < min_usd){
+            revert Not_Enough_Amt();
+        }
+        count ++;
+        addressToAmt(msg.sender) = msg.value;
+        indexToAmt(count) = msg.value;
+
+    }
+
+    function withdraw() public payable onlyOwner {
+            // using call method 
+
+        (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");  // writing uint amt_ is WRONG!!!
+        // call returns bool, if the withdraw is success or not, that's it, on that basis we put the if cond 
+
+        if(success!=true){
+            revert withdraw_failed();
+        }
+
+
+    }
+
+
+
+
+
+
+
+}
