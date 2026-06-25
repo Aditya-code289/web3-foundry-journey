@@ -16,13 +16,16 @@ contract test_fundme is Test{
 
     function setUp() external  {
         NETC = new network_config();
+        vm.deal(Divyansh, 10 ether);  
+        vm.deal(Aadi,2 ether);
 
         vm.startPrank(Aadi);
         FUNDME = new fundMe(NETC.final_addr()); // SO the wner of this contract is now Aadi and no longer the tes contract 
         vm.stopPrank();
-
     }
-    
+
+    /*                */ 
+
     function testOwner() public view {
         assertEq(FUNDME.owner(), address(Aadi));
     }
@@ -62,7 +65,7 @@ contract test_fundme is Test{
 
         // then we write our assert conditions 
         assertEq(address(FUNDME).balance, 0);
-        assertEq(address(Aadi).balance, 3 ether);
+        assertEq(address(Aadi).balance, 5 ether);
         assertEq(address(Divyansh).balance, 2 ether);
 
         console.log(address(FUNDME).balance);
@@ -73,12 +76,36 @@ contract test_fundme is Test{
 
     function test_mapping () public{
         vm.startPrank(Divyansh);
-        vm.deal(Divyansh, 5 ether);  
         FUNDME.get_fund{value: 3 ether}(); 
         vm.stopPrank();    
 
         assertEq(FUNDME.addressToAmt(address(Divyansh)), 3 ether);
         assertEq(FUNDME.indexToAmt(1), 3 ether);
+
+    }
+
+    function test_multiple_funders() public{
+        uint div_starting_bal = address(Divyansh).balance;
+        uint contr_starting_bal = address(FUNDME).balance;
+
+        vm.startPrank(Divyansh);
+        FUNDME.get_fund{value: 2 ether}();
+        FUNDME.get_fund{value: 4 ether}();
+        vm.stopPrank();
+
+        vm.startPrank(Aadi);
+        FUNDME.get_fund{value: 1 ether}();
+        vm.stopPrank();
+    
+
+        assertEq(FUNDME.count(),2);
+        assertEq(FUNDME.addressToAmt(address(Divyansh)), 6 ether );
+        assertEq(FUNDME.addressToAmt(address(Aadi)), 1 ether );
+        assertEq(address(FUNDME).balance, 7 ether);
+
+        console.log(address(Divyansh).balance);
+        console.log(address(Aadi).balance);
+        console.log(FUNDME.addressToAmt(address(Divyansh)));
 
     }
 

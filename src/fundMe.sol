@@ -48,9 +48,17 @@ contract fundMe{
         if(conversion(msg.value) < min_usd){
             revert Not_Enough_Amt();
         }
-        count ++;
-        addressToAmt[msg.sender] = msg.value;
-        indexToAmt[count] = msg.value;
+
+        if(addressToAmt[address(msg.sender)] != 0){
+            addressToAmt[msg.sender] += msg.value;
+        }
+        else{
+            count ++;
+            addressToAmt[msg.sender] = msg.value;
+            indexToAmt[count] = msg.value;
+        }
+
+        
 
     }
 
