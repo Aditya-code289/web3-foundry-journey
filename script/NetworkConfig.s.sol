@@ -4,8 +4,9 @@ pragma solidity ^0.8.19;
 
 import {fundMe} from "../src/fundMe.sol";
 import {Script} from "forge-std/Script.sol";
+import {MockV3Aggregator} from "../test/mocks/mockV3aggr.sol";
 
-contract network_config{
+contract network_config is Script{
 
     chain_config public final_addr;
 
@@ -28,7 +29,16 @@ contract network_config{
 
     }
 
-    function ret_anvil_addr() public view returns(chain_config memory){}
+    function ret_anvil_addr() public returns(chain_config memory){
+
+        vm.startBroadcast();
+       MockV3Aggregator mock_anvil_addr =  new MockV3Aggregator (8,2000e8);
+        vm.stopBroadcast();
+
+        chain_config memory anvil_price_feed = chain_config({chain_address: address(mock_anvil_addr)});
+
+        return anvil_price_feed;
+    }
 
 }
 

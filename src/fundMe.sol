@@ -15,7 +15,7 @@ contract fundMe{
     address immutable public owner;
 
     mapping(address=>uint) public addressToAmt;
-    mapping(uint=>uint) indexToAmt;
+    mapping(uint=>uint) public indexToAmt;
 
     constructor(address input_addr){
         chain_addr = input_addr;
@@ -29,14 +29,14 @@ contract fundMe{
         _;
     }
 
-    function fetch_price() public returns(uint256){
+    function fetch_price() public view returns(uint256){
 
         AggregatorV3Interface priceFeed = AggregatorV3Interface(chain_addr);
         (,int eth_price , , ,) =priceFeed.latestRoundData();
-        return uint(eth_price);
+        return uint(eth_price*1e10);
     }
 
-    function conversion(uint eth_amt) public returns(uint256){
+    function conversion(uint eth_amt) public view  returns(uint256){
         uint256 usd_amt = (eth_amt*fetch_price());
         usd_amt = usd_amt/1e18;
         return usd_amt;
@@ -54,7 +54,7 @@ contract fundMe{
 
     }
 
-    function withdraw() public payable OnlyOwner {
+    function withdraw() public OnlyOwner {  // diabolical, but the payable is only req to receive the amt not to send any money 
             // using call method 
 
         (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");  // writing uint amt_ is WRONG!!!
