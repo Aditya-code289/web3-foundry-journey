@@ -1,66 +1,81 @@
-## Foundry
+🚀 Foundry Journey
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+This repository documents my hands-on journey of learning Smart Contract Development, Testing, Deployment, and Security using Foundry.
 
-Foundry consists of:
+Instead of simply following tutorials, the goal of this repository is to rebuild concepts from scratch, question architectural decisions, write tests independently, and understand how production-grade Solidity projects are structured.
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
 
-## Documentation
+⚙️ Smart Contract Development
 
-https://book.getfoundry.sh/
+Built a complete FundMe smart contract featuring:
 
-## Usage
+ETH funding
+Minimum USD contribution using Chainlink Price Feeds
+Owner-restricted withdrawals
+Custom Solidity errors
+Immutable and constant variables
+Storage optimization
+Mapping of funders
+Array of contributors
 
-### Build
+🌐 Working with External Contracts
 
-```shell
-$ forge build
-```
+Learned how to interact with external protocols using:
 
-### Test
+Chainlink AggregatorV3Interface
+Live ETH/USD Price Feed
+Network-dependent configurations
+🔧 Deployment
 
-```shell
-$ forge test
-```
+Successfully deployed contracts using:
 
-### Format
+Forge deployment commands
+Solidity deployment scripts
+Local Anvil blockchain
+Sepolia Testnet
 
-```shell
-$ forge fmt
-```
+Learned how deployment differs across local and public networks.
 
-### Gas Snapshots
+🌍 Fork Testing
 
-```shell
-$ forge snapshot
-```
+Learned how to test contracts against a real blockchain state by forking Sepolia.
 
-### Anvil
+Compared:
 
-```shell
-$ anvil
-```
+Local mock testing
+Fork testing
+Real Chainlink price feeds
 
-### Deploy
+and understood the advantages and trade-offs of each approach.
 
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
+🎯 Mock Contracts
 
-### Cast
+Implemented local testing using:
 
-```shell
-$ cast <subcommand>
-```
+MockV3Aggregator
 
-### Help
+This allowed deterministic testing without relying on live oracle data.
 
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+⚙️ Network Configuration
+
+Implemented a reusable HelperConfig pattern to automatically switch between:
+
+Local Anvil configuration
+Sepolia configuration
+
+using the current chain ID.
+
+📊 Test Coverage
+
+Generated coverage reports using:
+
+forge coverage
+
+Achieved approximately:
+
+92% Line Coverage
+96% Statement Coverage
+80% Branch Coverage
+83% Function Coverage
+
+for the main FundMe contract.
